@@ -3,8 +3,12 @@ namespace tuana8tmt\Curd;
 class Query
 {   
     public $conn;
+    public $table_name;
+    public $data = array();
+    public $where;
     public $sql;
-    public $data;
+    public $result;
+
     public function __construct($server, $username, $password, $database)
     {   
         $conn = mysqli_connect($server, $username, $password, $database);
@@ -13,81 +17,62 @@ class Query
     
     public function select(string $select_options = "*") {
 
-        $query_part = "SELECT ".$select_options;
-        $this->sql = $query_part;
-        return $this;
+        $this->sql = "SELECT ".$select_options." FROM $this->table WHERE $this->where";
+        $query_part = $this->conn->prepare($this->sql);
+        $query_part->execute();
+        $this->result = $query_part->get_result()->fetch_array();
+        return $this->result;
+    }
+    public function insert($data)  
+    {   
+        foreach($data as $key => $value)  
+        {  
+            $query_part .= $key . ", ";
+            $this->data[] = $value;
+            $param = $param."?,";
+                 
+        }
+        $query_part = substr($query_part, 0, -2);  
+        $param = substr($param, 0, -1);  
+        $this->sql = "INSERT INTO $this->table ($query_part) VALUES ($param)";
+        $query_part = $this->conn->prepare($this->sql);
+        for($x = 0; $x < count($this->data); $x++)
+        $type = $type.'s';
+        $query_part->bind_param($type,...$this->data);
+        $query_part->execute();
+        
+        
     }
     public function delete() {
 
-        $query_part = "DELETE ";
-        $this->sql = $query_part;
-        return $this;
+        $this->sql = "DELETE FROM $this->table WHERE $this->where";
+        $query_part = $this->conn->prepare($this->sql);
+        $query_part->execute();        
     }
-    public function update($table_name) {
-        $query_part = "UPDATE $table_name ";
-        $this->sql = $query_part;
-        return $this;
-    }
-    public function set($set_options) {
-        foreach($set_options as $key => $value)  
-           {  
-                $query_part .= $key . "='".$value."', ";  
-           }
+    public function update($data) {
+        $query_part = '';
+        foreach($data as $key => $value)  
+        {  
+                $query_part .= $key . "=?, ";
+                $this->data[] = $value;
+                 
+        }
         $query_part = substr($query_part, 0, -2);  
-        $query_part = $this->sql." SET ".$query_part;
-        $this->sql = $query_part;
-        return $this;
-
+        $this->sql = "UPDATE $this->table SET $query_part WHERE $this->where";
+        $query_part = $this->conn->prepare($this->sql);
+        for($x = 0; $x < count($this->data); $x++)
+        $type = $type.'s';
+        $query_part->bind_param($type,...$this->data);
+        $query_part->execute();
     }
-    public function from(string $from_options) {
-
-        $query_part = $this->sql." FROM ".$from_options;
-        $this->sql = $query_part;
-        return $this;
-
-    }
-    public function where(string $where_options) {
-
-        $query_part = $this->sql." WHERE ".$where_options;
-        $this->sql = $query_part;
+    public function from($table_name){
+        $this->table = $table_name;
         return $this;
     }
-    public function groupBy(string $group_options) {
-
-        $query_part = $this->sql." groupBy ".$group_options;
-        $this->sql = $query_part;
-
+    public function where($condition){
+        $this->where = $condition;
+        return $this;
     }
-    public function get() {
-        $result = $this->conn->query($this->sql);
-        if ($result->num_rows > 0) {
-            $this->$data = $result->fetch_assoc();
-            return $this->$data;
-        }else {
-            return 'No result';
-        }
-    }
-    public function run() {
-        $this->conn->query($this->sql);      
-        if($this->conn->errno != 0){
-            return $this->conn->errno;
-        }else {
-            return true;
-        }
-    }
+    
 
-    public function insert($table_name, $data)  
-      {  
-        $this->sql = "INSERT INTO ".$table_name." (";            
-        $this->sql .= implode(",", array_keys($data)) . ') VALUES (';            
-        $this->sql .= "'" . implode("','", array_values($data)) . "')";  
-        if($this->conn->query($this->sql))  
-        {  
-            return true;  
-        }  
-        else  
-        {  
-            return false;  
-        }  
-      }
 }

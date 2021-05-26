@@ -15,5 +15,5 @@ $data = array(
     'so_dien_thoai' => '0985234592',
     'nha_cung_cap'=> 'asdasdasdas'
 );
-$update = $test->update('phong_ban')->set($data)->where('id = 1')->run();
+$update = $test->from('phong_ban')->where("id=7")->select();
 print_r($update);
