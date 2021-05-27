@@ -21,7 +21,11 @@ class Query
         $query_part = $this->conn->prepare($this->sql);
         $query_part->execute();
         $this->result = $query_part->get_result()->fetch_array();
-        return $this->result;
+        if($this->result){
+            return $this->result;
+        }else {
+            return 'No result';
+        }
     }
     public function insert($data)  
     {   
