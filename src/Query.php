@@ -7,6 +7,7 @@ class Query
     public $data = array();
     public $where;
     public $sql;
+    public $isWhere = 0;
     public $result;
 
     public function __construct($server, $username, $password, $database)
@@ -16,7 +17,6 @@ class Query
     }
     
     public function select(string $select_options = "*") {
-
         $this->sql = "SELECT ".$select_options." FROM $this->table WHERE $this->where";
         $query_part = $this->conn->prepare($this->sql);
         $query_part->execute();
@@ -69,8 +69,13 @@ class Query
         $this->table = $table_name;
         return $this;
     }
-    public function where($condition){
-        $this->where = $condition;
+    public function where($key, $value){
+        if($this->isWhere != 0 ){
+            $this->where = $this->where." AND `".$key."` = '".$value."'";
+        }else {
+            $this->where = "`".$key."` = "."'".$value."'";
+            $this->isWhere = 1;
+        }
         return $this;
     }
     
