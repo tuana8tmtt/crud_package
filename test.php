@@ -17,3 +17,4 @@ $data = array(
 );
 $update = $test->from('phong_ban')->where("id=7")->select();
 print_r($update);
+
