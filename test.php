@@ -2,13 +2,14 @@
 
 require_once __DIR__ . '/vendor/autoload.php';
 use \tuana8tmt\Curd\Query;
-
+use \tuana8tmt\Curd\Connection;
 $server = "localhost";
 $username = "root";
 $password = "";
 $database = "curd";
+$conn = new Connection($server, $username, $password, $database)->conn;
 
-$test = new Query($server, $username, $password, $database);
+$test = new Query($conn);
 // $data = $test->delete()->from("nhan_vien")->where("id = '1'")->run();
 $data = array(
     'ten' => 'dasdasdasd',
