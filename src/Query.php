@@ -10,9 +10,8 @@ class Query
     public $isWhere = 0;
     public $result;
 
-    public function __construct($server, $username, $password, $database)
+    public function __construct($conn)
     {   
-        $conn = mysqli_connect($server, $username, $password, $database);
         $this->conn = $conn;
     }
     
